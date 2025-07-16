@@ -63,6 +63,9 @@ jspm_packages/
 
 # dotenv environment variable files
 .env
+.env.local
+.env.development
+.env.production
 .env.development.local
 .env.test.local
 .env.production.local
@@ -79,6 +82,7 @@ out
 # Nuxt.js build / generate output
 .nuxt
 dist
+build
 
 # Gatsby files
 .cache/
@@ -96,6 +100,7 @@ public
 
 # Serverless directories
 .serverless/
+serverless/
 
 # FuseBox cache
 .fusebox/
@@ -117,6 +122,7 @@ public
 .pnp.*
 
 # Backend specific
+backend/node_modules/
 backend/dist/
 backend/build/
 backend/.env
@@ -133,6 +139,7 @@ backend/prisma/dev.db-journal
 backend/.nest_cli_workspace.json
 
 # Frontend specific
+frontend/node_modules/
 frontend/dist/
 frontend/build/
 frontend/.env
@@ -152,12 +159,13 @@ frontend/build/
 docker-compose.override.yml
 
 # Database
+postgres-data/
 *.db
 *.sqlite
 *.sqlite3
 
 # Logs
-logs
+logs/
 *.log
 
 # Runtime directories
@@ -176,6 +184,7 @@ Thumbs.db
 # IDE
 .idea/
 .vscode/
+.vscode/settings.json
 *.swp
 *.swo
 *~
@@ -187,6 +196,7 @@ Thumbs.db
 
 # AWS
 .aws/
+serverless/
 
 # Terraform
 *.tfstate
