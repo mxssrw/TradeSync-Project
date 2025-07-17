@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: tradesync-postgres
+    environment:
+      POSTGRES_USER: tradesync
+      POSTGRES_PASSWORD: tradesync_password
+      POSTGRES_DB: tradesync
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - tradesync-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tradesync"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tradesync-backend
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://tradesync:tradesync_password@postgres:5432/tradesync?schema=public
+      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+      - FRONTEND_URL=http://localhost:3000
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - tradesync-network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: tradesync-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app              # ✔️ mount โค้ดของคุณเข้า container
+      - /app/node_modules            # ✔️ ป้องกันทับ node_modules ของ container
+    networks:
+      - tradesync-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  tradesync-network:
+    driver: bridge

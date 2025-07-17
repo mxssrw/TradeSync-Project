@@ -6,8 +6,8 @@ A modern full-stack trading application built with NestJS, React, and Aurora DSQ
 
 ### Backend
 - **Framework**: NestJS with TypeScript
-- **Database**: Aurora DSQL (PostgreSQL) with Prisma ORM
-- **Authentication**: JWT with Passport.js
+- **Database**: Aurora DSQL (PostgreSQL) with Prisma ORM (Maybe Change)
+- **Authentication**: JWT with Passport.js (Maybe Change)
 - **Deployment**: AWS Lambda with Serverless Framework
 - **API Documentation**: Swagger/OpenAPI
 
@@ -15,8 +15,9 @@ A modern full-stack trading application built with NestJS, React, and Aurora DSQ
 - **Framework**: React 18 with TypeScript
 - **Build Tool**: Vite
 - **Styling**: Tailwind CSS
-- **State Management**: Zustand
-- **Routing**: React Router v6
+- **UI component**: ShadUI
+- **State Management**: Zustand (Not Sure)
+- **Routing**: React Router v6 (Maybe Change)
 
 ### Infrastructure
 - **Containerization**: Docker & Docker Compose
@@ -216,22 +217,176 @@ npm run lint             # Run ESLint
 ```
 
 ### Docker
+
+TradeSync provides two Docker Compose configurations for different environments:
+
+#### 🏗️ **Production Environment** (`docker-compose.yml`)
+For production-ready deployment with optimized builds:
+
 ```bash
-# Full stack
-docker-compose up -d          # Start all services
-docker-compose up --build -d  # Start all services with rebuild
-docker-compose down           # Stop all services
-docker-compose logs           # View logs
+# Start all services (production mode)
+docker-compose up -d
 
-# Build and rebuild
-docker-compose build          # Build all services
-docker-compose build --no-cache  # Build without cache
+# Start with rebuild (if you made changes)
+docker-compose up --build -d
 
-# Individual services
-docker-compose up postgres    # Database only
-docker-compose up backend     # Backend only
-docker-compose up frontend    # Frontend only
+# Stop all services
+docker-compose down
+
+# View logs from all services
+docker-compose logs
+
+# View logs from specific service
+docker-compose logs frontend
+docker-compose logs backend
+docker-compose logs postgres
 ```
+
+**Services included:**
+- **Frontend**: Production build served on `http://localhost:3000`
+- **Backend**: NestJS API on `http://localhost:3001`
+- **PostgreSQL**: Database on port `5432`
+
+#### 🔧 **Development Environment** (`docker-compose.dev.yml`)
+For active development with hot reload and volume mounting:
+
+```bash
+# Start development environment
+docker-compose -f docker-compose.dev.yml up -d
+
+# Start with rebuild
+docker-compose -f docker-compose.dev.yml up --build -d
+
+# Stop development environment
+docker-compose -f docker-compose.dev.yml down
+
+# View development logs
+docker-compose -f docker-compose.dev.yml logs -f
+```
+
+**Development features:**
+- **Frontend**: Vite dev server with hot reload on `http://localhost:5173`
+- **Backend**: Development mode with auto-restart on `http://localhost:3001`
+- **Volume mounting**: Code changes reflect immediately
+- **PostgreSQL**: Same database configuration
+
+#### 🛠️ **Build & Maintenance Commands**
+
+```bash
+# Build all services without cache
+docker-compose build --no-cache
+
+# Build specific service
+docker-compose build frontend
+docker-compose build backend
+
+# Pull latest base images
+docker-compose pull
+
+# View service status
+docker-compose ps
+
+# Execute commands in running containers
+docker-compose exec backend npm run prisma:studio
+docker-compose exec postgres psql -U tradesync -d tradesync
+
+# Clean up unused resources
+docker system prune -a
+```
+
+#### 🔍 **Individual Service Management**
+
+```bash
+# Start only database
+docker-compose up postgres -d
+
+# Start backend with database
+docker-compose up postgres backend -d
+
+# Start all except frontend
+docker-compose up postgres backend -d
+
+# Restart specific service
+docker-compose restart backend
+
+# Scale services (if needed)
+docker-compose up --scale backend=2 -d
+```
+
+#### 📊 **Health Checks & Monitoring**
+
+```bash
+# Check service health
+docker-compose ps
+
+# Monitor resource usage
+docker stats
+
+# Follow logs in real-time
+docker-compose logs -f --tail=100
+
+# Check database connectivity
+docker-compose exec postgres pg_isready -U tradesync
+```
+
+#### 🗄️ **Database Management**
+
+```bash
+# Access PostgreSQL directly
+docker-compose exec postgres psql -U tradesync -d tradesync
+
+# Run database migrations
+docker-compose exec backend npm run prisma:migrate
+
+# Generate Prisma client
+docker-compose exec backend npm run prisma:generate
+
+# Open Prisma Studio
+docker-compose exec backend npm run prisma:studio
+
+# Backup database
+docker-compose exec postgres pg_dump -U tradesync tradesync > backup.sql
+
+# Restore database
+docker-compose exec -T postgres psql -U tradesync -d tradesync < backup.sql
+```
+
+#### 🚨 **Troubleshooting**
+
+```bash
+# View detailed logs for debugging
+docker-compose logs --details
+
+# Check container resource usage
+docker-compose top
+
+# Remove all containers and volumes (⚠️ destroys data)
+docker-compose down -v
+
+# Remove only containers (keeps data)
+docker-compose down
+
+# Force recreate containers
+docker-compose up --force-recreate -d
+
+# Check network connectivity
+docker-compose exec backend ping postgres
+docker-compose exec frontend ping backend
+```
+
+#### 📋 **Environment Variables**
+
+The Docker setup includes pre-configured environment variables:
+
+**Production (`docker-compose.yml`):**
+- Frontend: Served via Nginx on port 80 (mapped to 3000)
+- Backend: Production mode with optimizations
+- Database: Persistent volume for data
+
+**Development (`docker-compose.dev.yml`):**
+- Frontend: Vite dev server on port 5173
+- Backend: Development mode with hot reload
+- Database: Same configuration with development-friendly settings
 
 ## 🔧 Configuration
 
@@ -243,7 +398,6 @@ docker-compose up frontend    # Frontend only
 
 ### Frontend Configuration
 - `frontend/vite.config.ts` - Vite configuration
-- `frontend/tailwind.config.js` - Tailwind CSS configuration
 - `frontend/src/stores/` - Zustand store configurations
 
 ## 🤝 Contributing
