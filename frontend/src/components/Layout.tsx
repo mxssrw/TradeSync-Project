@@ -1,27 +1,26 @@
-import type { ReactNode } from 'react';
+
+import React from 'react';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { AppSidebar } from './app-sidebar';
 
 interface LayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
-export default function Layout({ children }: LayoutProps) {
+export function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-900">TradeSync</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Trading Dashboard</span>
-            </div>
-          </div>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col">
+          <header className="h-12 flex items-center border-b bg-background px-4">
+            <SidebarTrigger />
+          </header>
+          <main className="flex-1">
+            {children}
+          </main>
         </div>
-      </nav>
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        {children}
-      </main>
-    </div>
+      </div>
+    </SidebarProvider>
   );
 }
